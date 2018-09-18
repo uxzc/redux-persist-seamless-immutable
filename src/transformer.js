@@ -7,6 +7,10 @@ const convertToPojo = state => state.asMutable({ deep: true });
 const fromImmutable = a => (isImmutable(a) ? convertToPojo(a) : a);
 // convert this JS object into an Immutable object
 const toImmutable = raw => Immutable(raw);
+const objectWithoutKey = (object, key) => {
+  const {[key]: deletedKey, ...otherKeys} = object;
+  return otherKeys;
+}
 
 const seamlessImmutableTransformCreator = ({ whitelistPerReducer = {}, blacklistPerReducer = {} }) => {
   return createTransform(
@@ -16,14 +20,14 @@ const seamlessImmutableTransformCreator = ({ whitelistPerReducer = {}, blacklist
       if (whitelistPerReducer[key]) {
         reducedStateKeys.forEach(item => {
           if (!whitelistPerReducer[key].includes(item)) {
-            state = state.without(item);
+            state = objectWithoutKey(state, item);
           }
         });
       }
       if (blacklistPerReducer[key]) {
         reducedStateKeys.forEach(item => {
           if (blacklistPerReducer[key].includes(item)) {
-            state = state.without(item);
+            state = objectWithoutKey(state, item);
           }
         });
       }
